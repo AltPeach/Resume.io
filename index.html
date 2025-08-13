@@ -865,4 +865,185 @@
                     company: 'Teleperformance',
                     location: 'Remote',
                     duration: 'October 2022 – January 2023',
-                    description: '• Maintained 95%+ customer satisfaction ratings\n• Provided technical support to 100+ customers daily\n• Utilized remote access tools for efficient
+                    description: '• Maintained 95%+ customer satisfaction ratings\n• Provided technical support to 100+ customers daily\n• Utilized remote access tools for efficient troubleshooting\n• Applied consultative approach to resolve complex issues'
+                }
+            ];
+            updateExperienceList();
+            
+            // Add education
+            educations = [
+                {
+                    degree: 'Bachelor of Economics',
+                    institution: 'University of Alberta',
+                    location: 'Edmonton, AB',
+                    year: 'Expected June 2026'
+                },
+                {
+                    degree: 'Nutrition and Healthy Lifestyles Certificate',
+                    institution: 'Southern Alberta Institute of Technology (SAIT)',
+                    location: 'Calgary, AB',
+                    year: 'June 2020'
+                }
+            ];
+            updateEducationList();
+            
+            updatePreview();
+        }
+
+        function clearForm() {
+            if (confirm('Are you sure you want to clear all data?')) {
+                // Clear all form fields
+                document.querySelectorAll('input, textarea').forEach(field => field.value = '');
+                
+                // Clear arrays
+                skills = [];
+                experiences = [];
+                educations = [];
+                
+                // Update lists and preview
+                updateSkillsList();
+                updateExperienceList();
+                updateEducationList();
+                updatePreview();
+            }
+        }
+
+        function exportResumeData() {
+            const data = {
+                personal: {
+                    fullName: document.getElementById('fullName').value,
+                    email: document.getElementById('email').value,
+                    phone: document.getElementById('phone').value,
+                    address: document.getElementById('address').value,
+                    summary: document.getElementById('summary').value
+                },
+                skills: skills,
+                experiences: experiences,
+                educations: educations,
+                style: currentStyle
+            };
+            
+            const blob = new Blob([JSON.stringify(data, null, 2)], {type: 'application/json'});
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'resume-data.json';
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        function importResumeData(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    try {
+                        const data = JSON.parse(e.target.result);
+                        
+                        // Fill personal info
+                        document.getElementById('fullName').value = data.personal.fullName || '';
+                        document.getElementById('email').value = data.personal.email || '';
+                        document.getElementById('phone').value = data.personal.phone || '';
+                        document.getElementById('address').value = data.personal.address || '';
+                        document.getElementById('summary').value = data.personal.summary || '';
+                        
+                        // Load data arrays
+                        skills = data.skills || [];
+                        experiences = data.experiences || [];
+                        educations = data.educations || [];
+                        
+                        // Select style
+                        if (data.style) {
+                            selectStyle(data.style);
+                        }
+                        
+                        // Update displays
+                        updateSkillsList();
+                        updateExperienceList();
+                        updateEducationList();
+                        updatePreview();
+                        
+                        alert('Resume data imported successfully!');
+                    } catch (error) {
+                        alert('Error importing file. Please check the file format.');
+                    }
+                };
+                reader.readAsText(file);
+            }
+        }
+
+        // Initialize with job tips hidden
+        document.addEventListener('DOMContentLoaded', function() {
+            updateJobSpecificTips();
+        });
+
+        // Auto-save functionality
+        function saveToLocalStorage() {
+            const data = {
+                personal: {
+                    fullName: document.getElementById('fullName').value,
+                    email: document.getElementById('email').value,
+                    phone: document.getElementById('phone').value,
+                    address: document.getElementById('address').value,
+                    summary: document.getElementById('summary').value
+                },
+                skills: skills,
+                experiences: experiences,
+                educations: educations,
+                style: currentStyle
+            };
+            
+            // Store in memory only (no localStorage)
+            window.resumeData = data;
+        }
+
+        function loadFromLocalStorage() {
+            if (window.resumeData) {
+                const data = window.resumeData;
+                
+                // Fill personal info
+                document.getElementById('fullName').value = data.personal.fullName || '';
+                document.getElementById('email').value = data.personal.email || '';
+                document.getElementById('phone').value = data.personal.phone || '';
+                document.getElementById('address').value = data.personal.address || '';
+                document.getElementById('summary').value = data.personal.summary || '';
+                
+                // Load data arrays
+                skills = data.skills || [];
+                experiences = data.experiences || [];
+                educations = data.educations || [];
+                
+                // Update displays
+                updateSkillsList();
+                updateExperienceList();
+                updateEducationList();
+                updatePreview();
+            }
+        }
+
+        // Auto-save on changes
+        document.addEventListener('input', saveToLocalStorage);
+        document.addEventListener('change', saveToLocalStorage);
+
+        // Load data on page load
+        window.addEventListener('load', loadFromLocalStorage);
+
+        // Keyboard shortcuts
+        document.addEventListener('keydown', function(e) {
+            if (e.ctrlKey || e.metaKey) {
+                switch(e.key) {
+                    case 's':
+                        e.preventDefault();
+                        saveToLocalStorage();
+                        alert('Resume auto-saved!');
+                        break;
+                    case 'p':
+                        e.preventDefault();
+                        window.print();
+                        break;
+                }
+            }
+        });
+    </script>
+</body>
+</html>
